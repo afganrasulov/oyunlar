@@ -1,12 +1,205 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
-<title>Page Title</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tiyatro Yazarı Tahmin Oyunu</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+    #game {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+    #title {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    input[type="text"] {
+      width: calc(100% - 1rem);
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 0 0.5rem;
+    }
+    #checkBtn { background: #28a745; color: #fff; }
+    #nextBtn { background: #007bff; color: #fff; display: none; }
+    #result {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
+  <div id="game">
+    <h2>Tiyatro Yazarı Tahmin Oyunu</h2>
+    <div id="title">...</div>
+    <input type="text" id="guess" placeholder="Yazarın ismini yazın" autocomplete="off" />
+    <div>
+      <button id="checkBtn">Tahmin Et</button>
+      <button id="nextBtn">Sonraki</button>
+    </div>
+    <div id="result"></div>
+  </div>
 
-<h1>Yapay zeka 12. dönem</h1>
-<p>This is a paragraph.</p>
+  <script>
+const plays = [
+  { title: "Hamlet", author: "William Shakespeare" },
+  { title: "Kral Lear", author: "William Shakespeare" },
+  { title: "Antigone", author: "Sofokles" },
+  { title: "Bir Bebek Evi", author: "Henrik Ibsen" },
+  { title: "Godot'yu Beklerken", author: "Samuel Beckett" },
+  { title: "Macbeth", author: "William Shakespeare" },
+  { title: "Othello", author: "William Shakespeare" },
+  { title: "Romeo ve Juliet", author: "William Shakespeare" },
+  { title: "Medea", author: "Euripides" },
+  { title: "Oedipus Rex", author: "Sofokles" },
+  { title: "Lysistrata", author: "Aristophanes" },
+  { title: "The Bacchae", author: "Euripides" },
+  { title: "Üç Kız Kardeş", author: "Anton Çehov" },
+  { title: "Martı", author: "Anton Çehov" },
+  { title: "Vanya Dayı", author: "Anton Çehov" },
+  { title: "Vișne Bahçesi", author: "Anton Çehov" },
+  { title: "Hedda Gabler", author: "Henrik Ibsen" },
+  { title: "Yaban Ördeği", author: "Henrik Ibsen" },
+  { title: "Hayaletler", author: "Henrik Ibsen" },
+  { title: "Brand", author: "Henrik Ibsen" },
+  { title: "Peer Gynt", author: "Henrik Ibsen" },
+  { title: "The Importance of Being Earnest", author: "Oscar Wilde" },
+  { title: "Salome", author: "Oscar Wilde" },
+  { title: "The Seagull", author: "Anton Çehov" },
+  { title: "Long Day's Journey Into Night", author: "Eugene O'Neill" },
+  { title: "A Streetcar Named Desire", author: "Tennessee Williams" },
+  { title: "The Glass Menagerie", author: "Tennessee Williams" },
+  { title: "Cat on a Hot Tin Roof", author: "Tennessee Williams" },
+  { title: "Death of a Salesman", author: "Arthur Miller" },
+  { title: "The Crucible", author: "Arthur Miller" },
+  { title: "All My Sons", author: "Arthur Miller" },
+  { title: "The Birthday Party", author: "Harold Pinter" },
+  { title: "The Homecoming", author: "Harold Pinter" },
+  { title: "The Dumb Waiter", author: "Harold Pinter" },
+  { title: "No Exit", author: "Jean-Paul Sartre" },
+  { title: "The Flies", author: "Jean-Paul Sartre" },
+  { title: "Caligula", author: "Albert Camus" },
+  { title: "Cross Purpose", author: "Albert Camus" },
+  { title: "The Chairs", author: "Eugène Ionesco" },
+  { title: "The Lesson", author: "Eugène Ionesco" },
+  { title: "Rhinoceros", author: "Eugène Ionesco" },
+  { title: "The Bald Soprano", author: "Eugène Ionesco" },
+  { title: "Waiting for Lefty", author: "Clifford Odets" },
+  { title: "Awake and Sing!", author: "Clifford Odets" },
+  { title: "Golden Boy", author: "Clifford Odets" },
+  { title: "Marat/Sade", author: "Peter Weiss" },
+  { title: "The Resistible Rise of Arturo Ui", author: "Bertolt Brecht" },
+  { title: "Mother Courage and Her Children", author: "Bertolt Brecht" },
+  { title: "The Caucasian Chalk Circle", author: "Bertolt Brecht" },
+  { title: "The Good Person of Szechwan", author: "Bertolt Brecht" },
+  { title: "Galileo", author: "Bertolt Brecht" },
+  { title: "The Threepenny Opera", author: "Bertolt Brecht" },
+  { title: "The Visit", author: "Friedrich Dürrenmatt" },
+  { title: "The Physicists", author: "Friedrich Dürrenmatt" },
+  { title: "Andorra", author: "Max Frisch" },
+  { title: "Biedermann and the Firebugs", author: "Max Frisch" },
+  { title: "The Just Assassins", author: "Albert Camus" },
+  { title: "Zengin Mutfağı", author: "Vasıf Öngören" },
+  { title: "Bir Delinin Hatıra Defteri", author: "Nikolay Gogol" },
+  { title: "Yaşamak mı Yoksa Ölmek mi", author: "Orhan Asena" },
+  { title: "Keşanlı Ali Destanı", author: "Haldun Taner" },
+  { title: "Sersem Kocanın Kurnaz Karısı", author: "Haldun Taner" },
+  { title: "Gözlerimi Kaparım Vazifemi Yaparım", author: "Haldun Taner" },
+  { title: "Ayakta Durmak İstiyorum", author: "Tarık Buğra" },
+  { title: "Derya Gülü", author: "Necati Cumalı" },
+  { title: "Nalınlar", author: "Necati Cumalı" },
+  { title: "Kadınlar da Savaşı Yitirdi", author: "Curzio Malaparte" },
+  { title: "Köprü", author: "Güngör Dilmen" },
+  { title: "Midas'ın Kulakları", author: "Güngör Dilmen" },
+  { title: "Midas'ın Altınları", author: "Güngör Dilmen" },
+  { title: "Midas'ın Kör Düğümü", author: "Güngör Dilmen" },
+  { title: "Yalan", author: "Aziz Nesin" },
+  { title: "Toros Canavarı", author: "Aziz Nesin" },
+  { title: "Bir Tutam Baharat", author: "Yılmaz Erdoğan" },
+  { title: "Sen Hiç Ateş Böceği Gördün mü?", author: "Yılmaz Erdoğan" },
+  { title: "Otogargara", author: "Yılmaz Erdoğan" },
+  { title: "Bana Bir Şeyhler Oluyor", author: "Yılmaz Erdoğan" },
+  { title: "Kadınlar, Filler ve Saireler", author: "Yılmaz Erdoğan" },
+  { title: "Bir Yaz Gecesi Rüyası", author: "William Shakespeare" },
+  { title: "Tartuffe", author: "Molière" },
+  { title: "Cimri", author: "Molière" },
+  { title: "Kibarlık Budalası", author: "Molière" },
+  { title: "Don Juan", author: "Molière" },
+  { title: "Dom Juan ou le Festin de pierre", author: "Molière" },
+  { title: "Kral Oidipus", author: "Sofokles" },
+  { title: "Elektron", author: "Sofokles" },
+  { title: "Kadınlar Meclisi", author: "Aristophanes" },
+  { title: "Bulutlar", author: "Aristophanes" },
+  { title: "Barış", author: "Aristophanes" },
+  { title: "Şen Kadınlar", author: "William Shakespeare" },
+  { title: "Yaygara Fırtınası", author: "William Shakespeare" },
+  { title: "Venedik Taciri", author: "William Shakespeare" },
+  { title: "Henry V", author: "William Shakespeare" },
+  { title: "Measure for Measure", author: "William Shakespeare" },
+  { title: "Pericles", author: "William Shakespeare" },
+  { title: "The Winter's Tale", author: "William Shakespeare" },
+  { title: "Cymbeline", author: "William Shakespeare" }
+];
 
+
+    let current;
+
+    function pickRandom() {
+      const idx = Math.floor(Math.random() * plays.length);
+      current = plays[idx];
+      document.getElementById("title").textContent = current.title;
+      document.getElementById("guess").value = "";
+      document.getElementById("result").textContent = "";
+      document.getElementById("nextBtn").style.display = "none";
+      document.getElementById("checkBtn").style.display = "inline-block";
+    }
+
+    document.getElementById("checkBtn").addEventListener("click", () => {
+      const input = document.getElementById("guess").value.trim().toLowerCase();
+      const correct = current.author.toLowerCase();
+      const resultEl = document.getElementById("result");
+
+      if (!input) {
+        resultEl.textContent = "Lütfen bir tahmin girin.";
+        return;
+      }
+
+      if (input === correct) {
+        resultEl.textContent = "🎉 Doğru! Yazar: " + current.author;
+      } else {
+        resultEl.textContent = "❌ Yanlış. Doğru cevap: " + current.author;
+      }
+
+      document.getElementById("checkBtn").style.display = "none";
+      document.getElementById("nextBtn").style.display = "inline-block";
+    });
+
+    document.getElementById("nextBtn").addEventListener("click", pickRandom);
+
+    // Başlangıçta oyun başlasın
+    pickRandom();
+  </script>
 </body>
 </html>
+
